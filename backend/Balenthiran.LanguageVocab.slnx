@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Balenthiran.LanguageVocab.Abstractions/Balenthiran.LanguageVocab.Abstractions.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.WebApi/Balenthiran.LanguageVocab.WebApi.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.DataModels/Balenthiran.LanguageVocab.DataModels.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.Database/Balenthiran.LanguageVocab.Database.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.DomainModels/Balenthiran.LanguageVocab.DomainModels.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.EntityModels/Balenthiran.LanguageVocab.EntityModels.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.Services/Balenthiran.LanguageVocab.Services.csproj" />
+</Solution>
