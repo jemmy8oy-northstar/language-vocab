@@ -14,6 +14,12 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Ship the word-list seed data inside the assembly so the loader has no filesystem
+         dependency at runtime (read via SeedResources). -->
+    <EmbeddedResource Include="Seed\hsk1.json" LogicalName="hsk1.json" />
+  </ItemGroup>
+
   <PropertyGroup>
     <EnableDefaultResourceItems>false</EnableDefaultResourceItems>    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

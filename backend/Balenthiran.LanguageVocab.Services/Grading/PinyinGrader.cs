@@ -52,6 +52,14 @@ public class PinyinGrader : IPinyinGrader
     }
 
     /// <summary>
+    /// Reduces any accepted pinyin form to its toneless, lowercased, separator-free
+    /// comparison key (ü/v unified). This is exactly the value stored in
+    /// <c>VocabItem.PinyinNormalised</c>, so the seed loader and the grader agree on
+    /// what "the same syllables" means (design assumption A7).
+    /// </summary>
+    public static string Normalise(string? pinyin) => Parse(pinyin).Base;
+
+    /// <summary>
     /// Reduces any accepted pinyin form to a toneless letter string plus the
     /// ordered list of its non-neutral tones (1–4). Neutral tone (mark-less, or
     /// written 0/5) contributes no tone. 'ü' and 'v' both normalise to 'v'.
