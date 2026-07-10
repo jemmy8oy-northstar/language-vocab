@@ -14,16 +14,16 @@ public class VocabItemEntity
     public string Language { get; set; } = "zh";
 
     /// <summary>The characters as displayed (never required as input).</summary>
-    public string Hanzi { get; set; } = string.Empty;
+    public required string Hanzi { get; set; }
 
     /// <summary>Canonical pinyin with tone marks, e.g. "nǐ hǎo".</summary>
-    public string Pinyin { get; set; } = string.Empty;
+    public required string Pinyin { get; set; }
 
     /// <summary>
     /// Toneless, lowercased, space-stripped pinyin used for fast lookups and as
     /// a stable comparison key. Populated by the seed loader from <see cref="Pinyin"/>.
     /// </summary>
-    public string PinyinNormalised { get; set; } = string.Empty;
+    public required string PinyinNormalised { get; set; }
 
     /// <summary>Accepted English glosses; an answer matching any one is correct.</summary>
     public List<string> Glosses { get; set; } = [];

@@ -7,9 +7,11 @@ namespace Balenthiran.LanguageVocab.Abstractions.Grading;
 /// Tones are graded softly (design assumption A2): correct syllables with
 /// wrong or missing tones yield <see cref="AnswerVerdict.Almost"/>.
 /// </summary>
-public record PinyinGradeResult(
-    AnswerVerdict Verdict,
-    string CanonicalPinyin,
-    bool SyllablesCorrect,
-    bool TonesCorrect,
-    bool TonesProvided);
+public interface IPinyinGradeResult
+{
+    AnswerVerdict Verdict { get; }
+    string CanonicalPinyin { get; }
+    bool SyllablesCorrect { get; }
+    bool TonesCorrect { get; }
+    bool TonesProvided { get; }
+}

@@ -9,5 +9,5 @@ namespace Balenthiran.LanguageVocab.Abstractions.Services;
 /// </summary>
 public interface IPinyinGrader
 {
-    PinyinGradeResult Grade(string canonicalPinyin, string userInput);
+    IPinyinGradeResult Grade(string canonicalPinyin, string userInput);
 }

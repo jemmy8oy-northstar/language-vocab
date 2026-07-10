@@ -10,7 +10,7 @@ public class AnswerLogEntity
 {
     public Guid Id { get; set; }
 
-    public string UserId { get; set; } = string.Empty;
+    public required string UserId { get; set; }
 
     public Guid VocabItemId { get; set; }
 
@@ -19,7 +19,7 @@ public class AnswerLogEntity
     public DrillDirection Direction { get; set; }
 
     /// <summary>Exactly what the user typed, before normalisation.</summary>
-    public string Given { get; set; } = string.Empty;
+    public required string Given { get; set; }
 
     public AnswerVerdict Verdict { get; set; }
 
