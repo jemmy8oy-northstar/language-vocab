@@ -7,12 +7,6 @@ namespace Balenthiran.LanguageVocab.Abstractions.Seeding;
 /// </summary>
 public interface ISeedLoader
 {
-    /// <summary>Upserts the entries in a word-list JSON document. See <see cref="SeedResult"/>.</summary>
-    Task<SeedResult> LoadAsync(string json, CancellationToken ct = default);
-}
-
-/// <summary>Outcome of a seed load, for logging at startup.</summary>
-public readonly record struct SeedResult(int Inserted, int Updated, int Unchanged)
-{
-    public int Total => Inserted + Updated + Unchanged;
+    /// <summary>Upserts the entries in a word-list JSON document. See <see cref="ISeedResult"/>.</summary>
+    Task<ISeedResult> LoadAsync(string json, CancellationToken ct = default);
 }

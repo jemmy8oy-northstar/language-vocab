@@ -1,3 +1,4 @@
+using Balenthiran.LanguageVocab.Abstractions.Services;
 using Balenthiran.LanguageVocab.Database;
 using Balenthiran.LanguageVocab.EntityModels;
 using Balenthiran.LanguageVocab.Services.Pooling;
@@ -15,6 +16,8 @@ public class PoolServiceTests
 {
     private const string Zh = "zh";
     private const string User = "user-1";
+
+    private readonly IPoolMath _math = new PoolMath();
 
     private static AppDbContext NewDb()
     {
@@ -53,11 +56,11 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         var vocab = SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
 
         var added = await svc.EnsureBootstrappedAsync(User, Zh);
 
-        Assert.Equal(PoolMath.BootstrapSize, added.Count);
+        Assert.Equal(_math.BootstrapSize, added.Count);
         var expected = vocab.OrderBy(v => v.FrequencyRank).Take(10).Select(v => v.Id).ToHashSet();
         Assert.Equal(expected, added.ToHashSet());
         Assert.Equal(10, await db.UserWordStates.CountAsync());
@@ -68,7 +71,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
 
         await svc.EnsureBootstrappedAsync(User, Zh);
         var secondCall = await svc.EnsureBootstrappedAsync(User, Zh);
@@ -82,7 +85,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 4);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
 
         var added = await svc.EnsureBootstrappedAsync(User, Zh);
 
@@ -95,7 +98,7 @@ public class PoolServiceTests
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
         SeedVocab(db, "fr", 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
 
         var added = await svc.EnsureBootstrappedAsync(User, Zh);
 
@@ -108,7 +111,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
 
         Assert.Null(await svc.SelectNextAsync(User, Zh, seed: 1));
     }
@@ -118,7 +121,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
         await svc.EnsureBootstrappedAsync(User, Zh);
         var pool = await db.UserWordStates.Select(s => s.VocabItemId).ToHashSetAsync();
 
@@ -135,7 +138,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
         await svc.EnsureBootstrappedAsync(User, Zh);
 
         var first = await svc.SelectNextAsync(User, Zh, seed: 424242);
@@ -148,7 +151,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
         await svc.EnsureBootstrappedAsync(User, Zh); // all strength 0
 
         var unlocked = await svc.TryUnlockAsync(User, Zh);
@@ -162,7 +165,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         var vocab = SeedVocab(db, Zh, 20);
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
         await svc.EnsureBootstrappedAsync(User, Zh);
 
         // Master the whole pool so mean strength clears the threshold.
@@ -181,7 +184,7 @@ public class PoolServiceTests
     {
         using var db = NewDb();
         SeedVocab(db, Zh, 10); // exactly the bootstrap set, nothing beyond it
-        var svc = new PoolService(db);
+        var svc = new PoolService(db, _math);
         await svc.EnsureBootstrappedAsync(User, Zh);
         await db.UserWordStates.ForEachAsync(s => s.Strength = 5);
         await db.SaveChangesAsync();

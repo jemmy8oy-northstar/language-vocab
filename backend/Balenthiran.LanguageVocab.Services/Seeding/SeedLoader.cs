@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Balenthiran.LanguageVocab.Abstractions.Enums;
 using Balenthiran.LanguageVocab.Abstractions.Seeding;
 using Balenthiran.LanguageVocab.Database;
+using Balenthiran.LanguageVocab.DataModels.Seeding;
 using Balenthiran.LanguageVocab.EntityModels;
 using Balenthiran.LanguageVocab.Services.Grading;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public class SeedLoader(AppDbContext db) : ISeedLoader
         Converters = { new JsonStringEnumConverter() },
     };
 
-    public async Task<SeedResult> LoadAsync(string json, CancellationToken ct = default)
+    public async Task<ISeedResult> LoadAsync(string json, CancellationToken ct = default)
     {
         var file = JsonSerializer.Deserialize<SeedFile>(json, JsonOptions)
                    ?? throw new InvalidOperationException("Seed JSON deserialised to null.");
@@ -51,7 +52,14 @@ public class SeedLoader(AppDbContext db) : ISeedLoader
             }
             else
             {
-                var fresh = new VocabItemEntity { Id = Guid.NewGuid(), Language = file.Language };
+                var fresh = new VocabItemEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Language = file.Language,
+                    Hanzi = entry.Hanzi,
+                    Pinyin = entry.Pinyin,
+                    PinyinNormalised = normalised,
+                };
                 ApplyTo(fresh, file.Language, entry, normalised);
                 db.VocabItems.Add(fresh);
                 inserted++;

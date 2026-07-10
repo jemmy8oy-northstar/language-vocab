@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Balenthiran.LanguageVocab.Services.Pooling;
 
 /// <summary>
-/// Persistence shell around <see cref="PoolMath"/>: loads a user's active pool from the
+/// Persistence shell around <see cref="IPoolMath"/>: loads a user's active pool from the
 /// database, applies the pure rules, and writes back new membership. All decisions live in
-/// <see cref="PoolMath"/>; this type only moves rows.
+/// the injected <see cref="IPoolMath"/>; this type only moves rows.
 /// </summary>
-public class PoolService(AppDbContext db) : IPoolService
+public class PoolService(AppDbContext db, IPoolMath math) : IPoolService
 {
     /// <summary>The user's active-pool rows for one language (state rows join their vocab item).</summary>
     private IQueryable<UserWordStateEntity> Pool(string userId, string language)
@@ -25,7 +25,7 @@ public class PoolService(AppDbContext db) : IPoolService
         var firstByRank = await db.VocabItems
             .Where(v => v.Language == language)
             .OrderBy(v => v.FrequencyRank).ThenBy(v => v.Id)
-            .Take(PoolMath.BootstrapSize)
+            .Take(math.BootstrapSize)
             .Select(v => v.Id)
             .ToListAsync(ct);
 
@@ -44,7 +44,7 @@ public class PoolService(AppDbContext db) : IPoolService
         if (pool.Count == 0)
             return null;
 
-        var index = PoolMath.WeightedPickIndex(pool.Select(p => p.Strength).ToList(), seed);
+        var index = math.WeightedPickIndex(pool.Select(p => p.Strength).ToList(), seed);
         return pool[index].VocabItemId;
     }
 
@@ -52,14 +52,14 @@ public class PoolService(AppDbContext db) : IPoolService
         string userId, string language, CancellationToken ct = default)
     {
         var strengths = await Pool(userId, language).Select(s => s.Strength).ToListAsync(ct);
-        if (!PoolMath.ShouldUnlock(strengths))
+        if (!math.ShouldUnlock(strengths))
             return [];
 
         var alreadyInPool = Pool(userId, language).Select(s => s.VocabItemId);
         var nextByRank = await db.VocabItems
             .Where(v => v.Language == language && !alreadyInPool.Contains(v.Id))
             .OrderBy(v => v.FrequencyRank).ThenBy(v => v.Id)
-            .Take(PoolMath.UnlockBatchSize)
+            .Take(math.UnlockBatchSize)
             .Select(v => v.Id)
             .ToListAsync(ct);
 
