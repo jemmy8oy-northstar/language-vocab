@@ -1,0 +1,14 @@
+<Project>
+
+  <!--
+    Shared build settings + convention enforcement for every backend project.
+    See docs (web-template) / .agents/rules for the conventions these rules back.
+  -->
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

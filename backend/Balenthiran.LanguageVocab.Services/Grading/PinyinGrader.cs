@@ -2,6 +2,7 @@ using System.Text;
 using Balenthiran.LanguageVocab.Abstractions.Enums;
 using Balenthiran.LanguageVocab.Abstractions.Grading;
 using Balenthiran.LanguageVocab.Abstractions.Services;
+using Balenthiran.LanguageVocab.DataModels.Grading;
 
 namespace Balenthiran.LanguageVocab.Services.Grading;
 
@@ -18,7 +19,7 @@ namespace Balenthiran.LanguageVocab.Services.Grading;
 /// </summary>
 public class PinyinGrader : IPinyinGrader
 {
-    public PinyinGradeResult Grade(string canonicalPinyin, string userInput)
+    public IPinyinGradeResult Grade(string canonicalPinyin, string userInput)
     {
         var (canonicalBase, canonicalTones) = Parse(canonicalPinyin);
         var (userBase, userTones) = Parse(userInput);
