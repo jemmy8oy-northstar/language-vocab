@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Balenthiran.LanguageVocab.Abstractions/Balenthiran.LanguageVocab.Abstractions.csproj" />
+  <Project Path="Balenthiran.LanguageVocab.Tests/Balenthiran.LanguageVocab.Tests.csproj" />
   <Project Path="Balenthiran.LanguageVocab.WebApi/Balenthiran.LanguageVocab.WebApi.csproj" />
   <Project Path="Balenthiran.LanguageVocab.DataModels/Balenthiran.LanguageVocab.DataModels.csproj" />
   <Project Path="Balenthiran.LanguageVocab.Database/Balenthiran.LanguageVocab.Database.csproj" />

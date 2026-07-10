@@ -2,12 +2,13 @@
 
   <ItemGroup>
     <ProjectReference Include="../Balenthiran.LanguageVocab.DomainModels/Balenthiran.LanguageVocab.DomainModels.csproj" />
+    <ProjectReference Include="../Balenthiran.LanguageVocab.DataModels/Balenthiran.LanguageVocab.DataModels.csproj" />
     <ProjectReference Include="../Balenthiran.LanguageVocab.Abstractions/Balenthiran.LanguageVocab.Abstractions.csproj" />
     <ProjectReference Include="../Balenthiran.LanguageVocab.Database/Balenthiran.LanguageVocab.Database.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.0.0" />
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
   </ItemGroup>
 
   <PropertyGroup>
