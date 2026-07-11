@@ -74,12 +74,15 @@ tone-as-number forces the association without needing diacritic input.
 
 ## Delivery plan
 
-- **PR 1**: scaffold from web-template + this design doc + seed data + CI-less
+- **PR 1** ✅: scaffold from web-template + this design doc + seed data + CI-less
   build scripts (bot can't push workflow files — James applies those).
-- **PR 2**: domain core — entities, migrations, PinyinGrader + PoolService with
-  full test coverage, seed loader.
-- **PR 3**: drill API routes + stats endpoint.
-- **PR 4**: frontend drill screen + stats page + audio.
+- **PR 2** ✅: domain core, part A — entities, migration (DomainCore), PinyinGrader
+  with dense tests. (Split from the original single "domain core" PR to keep each
+  reviewable.)
+- **PR 3**: domain core, part B — PoolService (bootstrap / weakness-weighted
+  selection / unlock rule) + idempotent seed loader, with tests. Stacks on PR 2.
+- **PR 4**: drill API routes + stats endpoint.
+- **PR 5**: frontend drill screen + stats page + audio.
 - Then: deploy PR in oke-fleet (needs image build by James — no workflows perm).
 
 Each PR into `dev`, small and reviewable. Bold-assumption changes recorded in
