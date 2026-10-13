@@ -34,6 +34,12 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// The ingress routes /language-vocab/api here without stripping the prefix, so the app has
+// to know it is hosted under one. Unset locally, where the API sits at the root.
+var pathBase = builder.Configuration["PathBase"];
+if (!string.IsNullOrWhiteSpace(pathBase))
+    app.UsePathBase(pathBase);
+
 app.UseHttpsRedirection();
 
 app.MapGroup("/api")
