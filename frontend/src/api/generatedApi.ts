@@ -4,24 +4,19 @@ const injectedRtkApi = api.injectEndpoints({
     getStatus: build.query<GetStatusApiResponse, GetStatusApiArg>({
       query: () => ({ url: `/api/status` }),
     }),
-    registerInterest: build.mutation<
-      RegisterInterestApiResponse,
-      RegisterInterestApiArg
-    >({
+    getNextCard: build.query<GetNextCardApiResponse, GetNextCardApiArg>({
       query: (queryArg) => ({
-        url: `/api/interest/register/${queryArg.projectSlug}`,
-        method: "POST",
-        body: queryArg.registerInterestRequest,
+        url: `/api/drill/next`,
+        params: {
+          direction: queryArg.direction,
+        },
       }),
     }),
-    registerGeneralInterest: build.mutation<
-      RegisterGeneralInterestApiResponse,
-      RegisterGeneralInterestApiArg
-    >({
+    answerCard: build.mutation<AnswerCardApiResponse, AnswerCardApiArg>({
       query: (queryArg) => ({
-        url: `/api/interest/register-general`,
+        url: `/api/drill/answer`,
         method: "POST",
-        body: queryArg.registerInterestRequest,
+        body: queryArg.answerRequest,
       }),
     }),
   }),
@@ -30,20 +25,35 @@ const injectedRtkApi = api.injectEndpoints({
 export { injectedRtkApi as enhancedApi };
 export type GetStatusApiResponse = unknown;
 export type GetStatusApiArg = void;
-export type RegisterInterestApiResponse = unknown;
-export type RegisterInterestApiArg = {
-  projectSlug: string;
-  registerInterestRequest: RegisterInterestRequest;
+export type GetNextCardApiResponse = /** status 200 OK */ IDrillCard;
+export type GetNextCardApiArg = {
+  direction?: DrillDirection;
 };
-export type RegisterGeneralInterestApiResponse = unknown;
-export type RegisterGeneralInterestApiArg = {
-  registerInterestRequest: RegisterInterestRequest;
+export type AnswerCardApiResponse = /** status 200 OK */ IDrillOutcome;
+export type AnswerCardApiArg = {
+  answerRequest: AnswerRequest;
 };
-export type RegisterInterestRequest = {
-  email?: string;
+export type DrillDirection = "ZhToEn" | "EnToZh";
+export type IDrillCard = {
+  vocabItemId?: string;
+  direction?: DrillDirection;
+  hanzi?: null | string;
+  pinyin?: null | string;
+  glosses?: null | string[];
 };
-export const {
-  useGetStatusQuery,
-  useRegisterInterestMutation,
-  useRegisterGeneralInterestMutation,
-} = injectedRtkApi;
+export type AnswerVerdict = "Wrong" | "Almost" | "Correct";
+export type IDrillOutcome = {
+  verdict?: AnswerVerdict;
+  hanzi?: null | string;
+  pinyin?: null | string;
+  glosses?: null | string[];
+  strength?: number | string;
+  unlocked?: number | string;
+};
+export type AnswerRequest = {
+  vocabItemId: string;
+  direction: DrillDirection;
+  answer: null | string;
+};
+export const { useGetStatusQuery, useGetNextCardQuery, useAnswerCardMutation } =
+  injectedRtkApi;

@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
       flexDirection: 'column' as const
     }}>
       <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)', display: 'none' }} className="mobile-logo">App Name</div>
+        <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)', display: 'none' }} className="mobile-logo">Language Vocab</div>
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           style={{ display: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', padding: '4px' }}
@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
 
       <div className={`nav-links ${isMenuOpen ? 'open' : ''}`} style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', alignItems: 'center' }}>
         <Link to={config.navigation.home} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.home)}>
-          Home
+          Practice
           {isActive(config.navigation.home) && <ActiveDot />}
         </Link>
         {/* Add more nav links here as your project grows */}

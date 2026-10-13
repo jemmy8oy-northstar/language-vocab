@@ -1,5 +1,7 @@
+using Balenthiran.LanguageVocab.Abstractions.Drilling;
 using Balenthiran.LanguageVocab.Abstractions.Enums;
 using Balenthiran.LanguageVocab.Abstractions.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Balenthiran.LanguageVocab.WebApi.Routes;
 
@@ -17,21 +19,24 @@ public static class DrillRoutes
     {
         var group = parentGroup.MapGroup("/drill");
 
-        group.MapGet("/next", async (DrillDirection? direction, IDrillService drill, CancellationToken ct) =>
+        // Typed results, so the OpenAPI schema (and the generated client) carries the shapes.
+        group.MapGet("/next", async Task<Results<Ok<IDrillCard>, NotFound>> (
+            DrillDirection? direction, IDrillService drill, CancellationToken ct) =>
         {
             var card = await drill.NextAsync(Owner, direction, ct);
-            return card is null ? Results.NotFound() : Results.Ok(card);
+            return card is null ? TypedResults.NotFound() : TypedResults.Ok(card);
         })
         .WithName("GetNextCard");
 
-        group.MapPost("/answer", async (AnswerRequest request, IDrillService drill, CancellationToken ct) =>
+        group.MapPost("/answer", async Task<Results<Ok<IDrillOutcome>, NotFound, BadRequest>> (
+            AnswerRequest request, IDrillService drill, CancellationToken ct) =>
         {
             if (!Enum.IsDefined(request.Direction))
-                return Results.BadRequest();
+                return TypedResults.BadRequest();
 
             var outcome = await drill.AnswerAsync(
                 Owner, request.VocabItemId, request.Direction, request.Answer ?? "", ct);
-            return outcome is null ? Results.NotFound() : Results.Ok(outcome);
+            return outcome is null ? TypedResults.NotFound() : TypedResults.Ok(outcome);
         })
         .WithName("AnswerCard");
 
