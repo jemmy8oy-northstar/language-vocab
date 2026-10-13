@@ -1,7 +1,9 @@
 using Scalar.AspNetCore;
 using Balenthiran.LanguageVocab.WebApi;
 using Balenthiran.LanguageVocab.WebApi.Routes;
+using Balenthiran.LanguageVocab.Abstractions.Seeding;
 using Balenthiran.LanguageVocab.Database;
+using Balenthiran.LanguageVocab.Database.Seed;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,13 +25,20 @@ using (var scope = app.Services.CreateScope())
     if (dbContext is null)
         app.Logger.LogWarning("Skipping database migration — no connection string configured.");
     else
+    {
         dbContext.Database.Migrate();
+        // Idempotent (MVP §1), so every startup brings the vocabulary up to the embedded list.
+        var seeded = await scope.ServiceProvider.GetRequiredService<ISeedLoader>().LoadAsync(SeedResources.Hsk1Json());
+        app.Logger.LogInformation("HSK1 seed: {Inserted} inserted, {Updated} updated, {Unchanged} unchanged",
+            seeded.Inserted, seeded.Updated, seeded.Unchanged);
+    }
 }
 
 app.UseHttpsRedirection();
 
 app.MapGroup("/api")
     .MapStatusRoutes()
+    .MapDrillRoutes()
     .WithOpenApi();
 
 app.Run();

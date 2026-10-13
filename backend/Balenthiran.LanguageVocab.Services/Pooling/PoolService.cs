@@ -12,18 +12,25 @@ namespace Balenthiran.LanguageVocab.Services.Pooling;
 /// </summary>
 public class PoolService(AppDbContext db, IPoolMath math) : IPoolService
 {
-    /// <summary>The user's active-pool rows for one language (state rows join their vocab item).</summary>
-    private IQueryable<UserWordStateEntity> Pool(string userId, string language)
-        => db.UserWordStates.Where(s => s.UserId == userId && s.VocabItem!.Language == language);
+    /// <summary>
+    /// The one language this app drills (kit#118: a setting, not a parameter). Rows in any
+    /// other language are ignored, so seeding a second list cannot leak into the pool before
+    /// the app knows how to choose between them.
+    /// </summary>
+    public const string Language = "zh";
+
+    /// <summary>The user's active-pool rows (state rows join their vocab item).</summary>
+    private IQueryable<UserWordStateEntity> Pool(string userId)
+        => db.UserWordStates.Where(s => s.UserId == userId && s.VocabItem!.Language == Language);
 
     public async Task<IReadOnlyList<Guid>> EnsureBootstrappedAsync(
-        string userId, string language, CancellationToken ct = default)
+        string userId, CancellationToken ct = default)
     {
-        if (await Pool(userId, language).AnyAsync(ct))
+        if (await Pool(userId).AnyAsync(ct))
             return [];
 
         var firstByRank = await db.VocabItems
-            .Where(v => v.Language == language)
+            .Where(v => v.Language == Language)
             .OrderBy(v => v.FrequencyRank).ThenBy(v => v.Id)
             .Take(math.BootstrapSize)
             .Select(v => v.Id)
@@ -33,10 +40,10 @@ public class PoolService(AppDbContext db, IPoolMath math) : IPoolService
     }
 
     public async Task<Guid?> SelectNextAsync(
-        string userId, string language, int seed, CancellationToken ct = default)
+        string userId, int seed, CancellationToken ct = default)
     {
         // Stable ordering (rank, then id) makes the seed→word mapping reproducible.
-        var pool = await Pool(userId, language)
+        var pool = await Pool(userId)
             .OrderBy(s => s.VocabItem!.FrequencyRank).ThenBy(s => s.VocabItemId)
             .Select(s => new { s.VocabItemId, s.Strength })
             .ToListAsync(ct);
@@ -49,15 +56,15 @@ public class PoolService(AppDbContext db, IPoolMath math) : IPoolService
     }
 
     public async Task<IReadOnlyList<Guid>> TryUnlockAsync(
-        string userId, string language, CancellationToken ct = default)
+        string userId, CancellationToken ct = default)
     {
-        var strengths = await Pool(userId, language).Select(s => s.Strength).ToListAsync(ct);
+        var strengths = await Pool(userId).Select(s => s.Strength).ToListAsync(ct);
         if (!math.ShouldUnlock(strengths))
             return [];
 
-        var alreadyInPool = Pool(userId, language).Select(s => s.VocabItemId);
+        var alreadyInPool = Pool(userId).Select(s => s.VocabItemId);
         var nextByRank = await db.VocabItems
-            .Where(v => v.Language == language && !alreadyInPool.Contains(v.Id))
+            .Where(v => v.Language == Language && !alreadyInPool.Contains(v.Id))
             .OrderBy(v => v.FrequencyRank).ThenBy(v => v.Id)
             .Take(math.UnlockBatchSize)
             .Select(v => v.Id)

@@ -1,6 +1,7 @@
 using Balenthiran.LanguageVocab.Abstractions.Seeding;
 using Balenthiran.LanguageVocab.Abstractions.Services;
 using Balenthiran.LanguageVocab.Services;
+using Balenthiran.LanguageVocab.Services.Drilling;
 using Balenthiran.LanguageVocab.Services.Grading;
 using Balenthiran.LanguageVocab.Services.Pooling;
 using Balenthiran.LanguageVocab.Services.Seeding;
@@ -33,5 +34,6 @@ public static class ServiceRegistration
         services.AddSingleton<IPoolMath, PoolMath>();
         services.AddScoped<IPoolService, PoolService>();
         services.AddScoped<ISeedLoader, SeedLoader>();
+        services.AddScoped<IDrillService, DrillService>();
     }
 }
