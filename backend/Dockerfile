@@ -11,7 +11,12 @@ COPY Balenthiran.LanguageVocab.DomainModels/*.csproj ./Balenthiran.LanguageVocab
 COPY Balenthiran.LanguageVocab.Services/*.csproj ./Balenthiran.LanguageVocab.Services/
 COPY Balenthiran.LanguageVocab.EntityModels/*.csproj ./Balenthiran.LanguageVocab.EntityModels/ 
 COPY Balenthiran.LanguageVocab.Database/*.csproj ./Balenthiran.LanguageVocab.Database/
+COPY Balenthiran.LanguageVocab.Tests/*.csproj ./Balenthiran.LanguageVocab.Tests/
 # Restore dependencies
+# NOTE: `dotnet restore` with no argument restores Balenthiran.LanguageVocab.slnx, so EVERY project
+# listed there must have its .csproj copied above — including test projects, which are
+# not published. Adding a project to the solution without a COPY line here breaks the
+# image build only, and only on a push to main, long after CI has gone green.
 RUN dotnet restore
 
 # Copy all source files
