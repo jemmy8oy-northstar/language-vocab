@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Scalar.AspNetCore;
 using Balenthiran.LanguageVocab.WebApi;
 using Balenthiran.LanguageVocab.WebApi.Routes;
@@ -8,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddBackendServices(builder.Configuration);
+// Enums travel as names ("ZhToEn", "Almost"), so the client reads them without a number table.
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
