@@ -1,6 +1,5 @@
 # Set this to your app name at scaffold time (e.g. "macro-metrics")
 fullnameOverride: "language-vocab"
-
 ingress:
   enabled: true
   className: nginx
@@ -11,15 +10,13 @@ ingress:
   tls:
     - hosts:
         - balenthiran.co.uk
-      secretName: balenthiran-tls   # shared wildcard cert — no per-project TLS setup
-
-registryPrefix: "lhr.ocir.io/lr7uc6l49odc"  # shared OCIR namespace
-
+      secretName: balenthiran-tls # shared wildcard cert — no per-project TLS setup
+registryPrefix: "lhr.ocir.io/lr7uc6l49odc" # shared OCIR namespace
 apps:
   - name: backend
     image:
-      repository: lhr.ocir.io/lr7uc6l49odc/language-vocab-backend   # Update at scaffold time
-      tag: latest
+      repository: lhr.ocir.io/lr7uc6l49odc/language-vocab-backend # Update at scaffold time
+      tag: 0.1.2
       pullPolicy: Always
     containerPort: 8080
     replicas: 1
@@ -27,7 +24,7 @@ apps:
       port: 80
       targetPort: 8080
     ingress:
-      path: /language-vocab/api     # developer replaces 'language-vocab' at scaffold time
+      path: /language-vocab/api # developer replaces 'language-vocab' at scaffold time
       pathType: Prefix
     resources: {}
     nodeSelector: {}
@@ -45,11 +42,10 @@ apps:
           secretKeyRef:
             name: language-vocab-secrets
             key: ConnectionStrings__DefaultConnection
-
   - name: frontend
     image:
-      repository: lhr.ocir.io/lr7uc6l49odc/language-vocab-frontend   # Update at scaffold time
-      tag: latest
+      repository: lhr.ocir.io/lr7uc6l49odc/language-vocab-frontend # Update at scaffold time
+      tag: 0.1.2
       pullPolicy: Always
     containerPort: 80
     replicas: 1
@@ -57,13 +53,12 @@ apps:
       port: 80
       targetPort: 80
     ingress:
-      path: /language-vocab         # developer replaces 'language-vocab' at scaffold time
+      path: /language-vocab # developer replaces 'language-vocab' at scaffold time
       pathType: Prefix
     resources: {}
     nodeSelector: {}
     tolerations: []
     affinity: {}
-
 # App-specific secrets — add per project (none pre-scaffolded):
 # env:
 #   - name: MY_API_KEY
