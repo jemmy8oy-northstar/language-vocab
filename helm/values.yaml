@@ -33,6 +33,18 @@ apps:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+    env:
+      # The ingress routes /language-vocab/api here without stripping the prefix.
+      - name: PathBase
+        value: "/language-vocab"
+      - name: ASPNETCORE_ENVIRONMENT
+        value: "Production"
+      # Created by secret-provisioner from oke-fleet secrets/language-vocab.json.
+      - name: ConnectionStrings__DefaultConnection
+        valueFrom:
+          secretKeyRef:
+            name: language-vocab-secrets
+            key: ConnectionStrings__DefaultConnection
 
   - name: frontend
     image:
