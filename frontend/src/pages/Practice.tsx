@@ -1,21 +1,8 @@
 import { useState } from 'react';
-import { useAnswerCardMutation, useGetNextCardQuery, type AnswerVerdict } from '../api/generatedApi';
+import { useAnswerCardMutation, useGetNextCardQuery } from '../api/generatedApi';
+import { speak } from '../speech';
+import { verdictStyle } from '../verdict';
 
-// Feedback colours (MVP §5): green, amber with the correct tones, red with the answer.
-const verdictStyle: Record<AnswerVerdict, { colour: string; label: string }> = {
-  Correct: { colour: '#22c55e', label: 'Correct' },
-  Almost: { colour: '#f59e0b', label: 'Almost — check the tones' },
-  Wrong: { colour: '#f87171', label: 'Not quite' },
-};
-
-/** Browser speech, zh-CN voice: no API key, no network call (A5). */
-const speak = (text: string) => {
-  if (!('speechSynthesis' in window)) return;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'zh-CN';
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
-};
 
 const Practice = () => {
   const { data: card, isFetching, isError, refetch } = useGetNextCardQuery({}, { refetchOnMountOrArgChange: true });

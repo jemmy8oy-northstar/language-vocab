@@ -17,6 +17,14 @@ public interface IDrillService
     Task<IDrillCard?> NextAsync(string userId, DrillDirection? direction, CancellationToken ct = default);
 
     /// <summary>
+    /// Learn mode (BEH-LEARN-1): bootstraps the pool if needed and returns up to
+    /// <paramref name="count"/> words from it, least-seen first and then by frequency rank, with
+    /// nothing hidden. Showing a word writes nothing; the quiz that follows answers through
+    /// <see cref="AnswerAsync"/>, so learning counts toward strength and unlocking like any drill.
+    /// </summary>
+    Task<IReadOnlyList<ILearnCard>> LearnAsync(string userId, int count, CancellationToken ct = default);
+
+    /// <summary>
     /// Grades <paramref name="answer"/> for a word in the user's pool: English against any
     /// accepted gloss (Zh→En), pinyin softly through the grader (En→Zh). Returns <c>null</c>
     /// if the word is not in the user's pool, in which case nothing is written.

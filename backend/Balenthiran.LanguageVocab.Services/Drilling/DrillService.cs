@@ -34,6 +34,22 @@ public class DrillService(AppDbContext db, IPoolService pool, IPoolMath math, IP
             : new DrillCard(item.Id, dir, null, null, item.Glosses);
     }
 
+    public async Task<IReadOnlyList<ILearnCard>> LearnAsync(string userId, int count, CancellationToken ct = default)
+    {
+        await pool.EnsureBootstrappedAsync(userId, ct);
+
+        // "New" is least-seen in the active pool: a word you have never answered comes first, and
+        // rank breaks ties so the commonest words are taught first. Nothing outside the pool, so
+        // learning never runs ahead of unlocking.
+        return await db.UserWordStates
+            .Where(s => s.UserId == userId && s.VocabItem != null)
+            .OrderBy(s => s.TimesSeen)
+            .ThenBy(s => s.VocabItem!.FrequencyRank)
+            .Take(count)
+            .Select(s => new LearnCard(s.VocabItemId, s.VocabItem!.Hanzi, s.VocabItem.Pinyin, s.VocabItem.Glosses))
+            .ToListAsync(ct);
+    }
+
     public async Task<IDrillOutcome?> AnswerAsync(
         string userId, Guid vocabItemId, DrillDirection direction, string answer, CancellationToken ct = default)
     {
