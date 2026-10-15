@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css'
 import Navbar from './components/Navbar'
 import Practice from './pages/Practice'
+import Learn from './pages/Learn'
 import ScrollToTop from './components/ScrollToTop'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -15,6 +16,7 @@ function App() {
           <main>
             <Routes>
               <Route path="/" element={<Practice />} />
+              <Route path="/learn" element={<Learn />} />
             </Routes>
           </main>
           <footer className="container" style={{

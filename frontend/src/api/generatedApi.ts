@@ -12,6 +12,14 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    getLearnRound: build.query<GetLearnRoundApiResponse, GetLearnRoundApiArg>({
+      query: (queryArg) => ({
+        url: `/api/drill/learn`,
+        params: {
+          count: queryArg.count,
+        },
+      }),
+    }),
     answerCard: build.mutation<AnswerCardApiResponse, AnswerCardApiArg>({
       query: (queryArg) => ({
         url: `/api/drill/answer`,
@@ -29,6 +37,10 @@ export type GetNextCardApiResponse = /** status 200 OK */ IDrillCard;
 export type GetNextCardApiArg = {
   direction?: DrillDirection;
 };
+export type GetLearnRoundApiResponse = /** status 200 OK */ ILearnCard[];
+export type GetLearnRoundApiArg = {
+  count?: number;
+};
 export type AnswerCardApiResponse = /** status 200 OK */ IDrillOutcome;
 export type AnswerCardApiArg = {
   answerRequest: AnswerRequest;
@@ -40,6 +52,12 @@ export type IDrillCard = {
   hanzi?: null | string;
   pinyin?: null | string;
   glosses?: null | string[];
+};
+export type ILearnCard = {
+  vocabItemId?: string;
+  hanzi?: string;
+  pinyin?: string;
+  glosses?: string[];
 };
 export type AnswerVerdict = "Wrong" | "Almost" | "Correct";
 export type IDrillOutcome = {
@@ -55,5 +73,9 @@ export type AnswerRequest = {
   direction: DrillDirection;
   answer: null | string;
 };
-export const { useGetStatusQuery, useGetNextCardQuery, useAnswerCardMutation } =
-  injectedRtkApi;
+export const {
+  useGetStatusQuery,
+  useGetNextCardQuery,
+  useGetLearnRoundQuery,
+  useAnswerCardMutation,
+} = injectedRtkApi;

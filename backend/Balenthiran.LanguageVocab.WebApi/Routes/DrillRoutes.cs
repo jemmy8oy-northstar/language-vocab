@@ -13,6 +13,11 @@ public static class DrillRoutes
     /// </summary>
     public const string Owner = "owner";
 
+    /// <summary>His note: "flick through maybe 5 words" before the quiz (BEH-LEARN-1).</summary>
+    public const int LearnRound = 5;
+
+    public const int MaxLearnRound = 20;
+
     public record AnswerRequest(Guid VocabItemId, DrillDirection Direction, string? Answer);
 
     public static RouteGroupBuilder MapDrillRoutes(this RouteGroupBuilder parentGroup)
@@ -27,6 +32,19 @@ public static class DrillRoutes
             return card is null ? TypedResults.NotFound() : TypedResults.Ok(card);
         })
         .WithName("GetNextCard");
+
+        // Learn mode (BEH-LEARN-1): a round of words to study, everything shown. Five unless asked,
+        // and never more than a round's worth, so a stray query cannot dump the whole pool.
+        group.MapGet("/learn", async Task<Results<Ok<IReadOnlyList<ILearnCard>>, BadRequest>> (
+            int? count, IDrillService drill, CancellationToken ct) =>
+        {
+            var n = count ?? LearnRound;
+            if (n is < 1 or > MaxLearnRound)
+                return TypedResults.BadRequest();
+
+            return TypedResults.Ok(await drill.LearnAsync(Owner, n, ct));
+        })
+        .WithName("GetLearnRound");
 
         group.MapPost("/answer", async Task<Results<Ok<IDrillOutcome>, NotFound, BadRequest>> (
             AnswerRequest request, IDrillService drill, CancellationToken ct) =>
