@@ -12,6 +12,18 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    getLearnRound: build.query<GetLearnRoundApiResponse, GetLearnRoundApiArg>({
+      query: (queryArg) => ({
+        url: `/api/drill/learn`,
+        params: {
+          count: queryArg.count,
+          pack: queryArg.pack,
+        },
+      }),
+    }),
+    getPacks: build.query<GetPacksApiResponse, GetPacksApiArg>({
+      query: () => ({ url: `/api/packs` }),
+    }),
     answerCard: build.mutation<AnswerCardApiResponse, AnswerCardApiArg>({
       query: (queryArg) => ({
         url: `/api/drill/answer`,
@@ -29,6 +41,13 @@ export type GetNextCardApiResponse = /** status 200 OK */ IDrillCard;
 export type GetNextCardApiArg = {
   direction?: DrillDirection;
 };
+export type GetLearnRoundApiResponse = /** status 200 OK */ ILearnCard[];
+export type GetLearnRoundApiArg = {
+  count?: number;
+  pack?: string;
+};
+export type GetPacksApiResponse = /** status 200 OK */ IPack[];
+export type GetPacksApiArg = void;
 export type AnswerCardApiResponse = /** status 200 OK */ IDrillOutcome;
 export type AnswerCardApiArg = {
   answerRequest: AnswerRequest;
@@ -40,6 +59,17 @@ export type IDrillCard = {
   hanzi?: null | string;
   pinyin?: null | string;
   glosses?: null | string[];
+};
+export type ILearnCard = {
+  vocabItemId?: string;
+  hanzi?: string;
+  pinyin?: string;
+  glosses?: string[];
+};
+export type IPack = {
+  id?: string;
+  title?: string;
+  hanzi?: string[];
 };
 export type AnswerVerdict = "Wrong" | "Almost" | "Correct";
 export type IDrillOutcome = {
@@ -55,5 +85,10 @@ export type AnswerRequest = {
   direction: DrillDirection;
   answer: null | string;
 };
-export const { useGetStatusQuery, useGetNextCardQuery, useAnswerCardMutation } =
-  injectedRtkApi;
+export const {
+  useGetStatusQuery,
+  useGetNextCardQuery,
+  useGetLearnRoundQuery,
+  useGetPacksQuery,
+  useAnswerCardMutation,
+} = injectedRtkApi;

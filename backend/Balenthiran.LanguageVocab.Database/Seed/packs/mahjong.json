@@ -1,0 +1,24 @@
+{
+  "language": "zh",
+  "list": "pack:mahjong",
+  "version": 1,
+  "pack": "mahjong",
+  "title": "Mahjong",
+  "includes": ["一", "二", "三", "四", "五", "六", "七", "八", "九"],
+  "entries": [
+    { "hanzi": "麻将", "pinyin": "májiàng", "glosses": ["mahjong"], "level": 0, "frequencyRank": 1001 },
+    { "hanzi": "万", "pinyin": "wàn", "glosses": ["characters", "ten thousand"], "level": 0, "frequencyRank": 1002 },
+    { "hanzi": "条", "pinyin": "tiáo", "glosses": ["bamboo", "bamboos"], "level": 0, "frequencyRank": 1003 },
+    { "hanzi": "饼", "pinyin": "bǐng", "glosses": ["dots", "circles"], "level": 0, "frequencyRank": 1004 },
+    { "hanzi": "东风", "pinyin": "dōngfēng", "glosses": ["east wind", "east"], "level": 0, "frequencyRank": 1005 },
+    { "hanzi": "南风", "pinyin": "nánfēng", "glosses": ["south wind", "south"], "level": 0, "frequencyRank": 1006 },
+    { "hanzi": "西风", "pinyin": "xīfēng", "glosses": ["west wind", "west"], "level": 0, "frequencyRank": 1007 },
+    { "hanzi": "北风", "pinyin": "běifēng", "glosses": ["north wind", "north"], "level": 0, "frequencyRank": 1008 },
+    { "hanzi": "红中", "pinyin": "hóngzhōng", "glosses": ["red dragon"], "level": 0, "frequencyRank": 1009 },
+    { "hanzi": "发财", "pinyin": "fācái", "glosses": ["green dragon"], "level": 0, "frequencyRank": 1010 },
+    { "hanzi": "白板", "pinyin": "báibǎn", "glosses": ["white dragon"], "level": 0, "frequencyRank": 1011 },
+    { "hanzi": "碰", "pinyin": "pèng", "glosses": ["pung", "pong"], "level": 0, "frequencyRank": 1012 },
+    { "hanzi": "杠", "pinyin": "gàng", "glosses": ["kong"], "level": 0, "frequencyRank": 1013 },
+    { "hanzi": "胡", "pinyin": "hú", "glosses": ["win", "mahjong win"], "level": 0, "frequencyRank": 1014 }
+  ]
+}

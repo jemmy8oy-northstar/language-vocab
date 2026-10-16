@@ -1,9 +1,11 @@
 using Balenthiran.LanguageVocab.Abstractions.Drilling;
 using Balenthiran.LanguageVocab.Abstractions.Enums;
+using Balenthiran.LanguageVocab.Abstractions.Packs;
 using Balenthiran.LanguageVocab.Abstractions.Services;
 using Balenthiran.LanguageVocab.Database;
 using Balenthiran.LanguageVocab.DataModels.Drilling;
 using Balenthiran.LanguageVocab.EntityModels;
+using Balenthiran.LanguageVocab.Services.Pooling;
 using Microsoft.EntityFrameworkCore;
 
 namespace Balenthiran.LanguageVocab.Services.Drilling;
@@ -32,6 +34,49 @@ public class DrillService(AppDbContext db, IPoolService pool, IPoolMath math, IP
         return dir == DrillDirection.ZhToEn
             ? new DrillCard(item.Id, dir, item.Hanzi, item.Pinyin, null)
             : new DrillCard(item.Id, dir, null, null, item.Glosses);
+    }
+
+    public async Task<IReadOnlyList<ILearnCard>> LearnAsync(string userId, int count, CancellationToken ct = default)
+    {
+        await pool.EnsureBootstrappedAsync(userId, ct);
+
+        // "New" is least-seen in the active pool: a word you have never answered comes first, and
+        // rank breaks ties so the commonest words are taught first. Nothing outside the pool, so
+        // learning never runs ahead of unlocking.
+        return await db.UserWordStates
+            .Where(s => s.UserId == userId && s.VocabItem != null)
+            .OrderBy(s => s.TimesSeen)
+            .ThenBy(s => s.VocabItem!.FrequencyRank)
+            .Take(count)
+            .Select(s => new LearnCard(s.VocabItemId, s.VocabItem!.Hanzi, s.VocabItem.Pinyin, s.VocabItem.Glosses))
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<ILearnCard>> LearnPackAsync(
+        string userId, IPack pack, int count, CancellationToken ct = default)
+    {
+        await pool.EnsureBootstrappedAsync(userId, ct);
+
+        var items = await db.VocabItems
+            .Where(v => v.Language == PoolService.Language && pack.Hanzi.Contains(v.Hanzi))
+            .Select(v => new { v.Id, v.Hanzi })
+            .ToListAsync(ct);
+        await pool.EnsureInPoolAsync(userId, items.Select(i => i.Id).ToList(), ct);
+
+        // The pack's order breaks ties, so a pack teaches the way its author laid it out.
+        var order = pack.Hanzi.Select((h, i) => (h, i)).ToDictionary(x => x.h, x => x.i);
+        var ids = items.Select(i => i.Id).ToList();
+        var states = await db.UserWordStates
+            .Where(s => s.UserId == userId && ids.Contains(s.VocabItemId))
+            .Select(s => new { s.TimesSeen, s.VocabItemId, s.VocabItem!.Hanzi, s.VocabItem.Pinyin, s.VocabItem.Glosses })
+            .ToListAsync(ct);
+
+        return states
+            .OrderBy(s => s.TimesSeen)
+            .ThenBy(s => order[s.Hanzi])
+            .Take(count)
+            .Select(s => (ILearnCard)new LearnCard(s.VocabItemId, s.Hanzi, s.Pinyin, s.Glosses))
+            .ToList();
     }
 
     public async Task<IDrillOutcome?> AnswerAsync(

@@ -67,7 +67,14 @@ const Navbar: React.FC = () => {
           Practice
           {isActive(config.navigation.home) && <ActiveDot />}
         </Link>
-        {/* Add more nav links here as your project grows */}
+        <Link to={config.navigation.learn} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.learn)}>
+          Learn
+          {isActive(config.navigation.learn) && <ActiveDot />}
+        </Link>
+        <Link to={config.navigation.packs} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.packs)}>
+          Packs
+          {isActive(config.navigation.packs) && <ActiveDot />}
+        </Link>
         <ThemeToggle />
       </div>
     </nav>

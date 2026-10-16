@@ -271,4 +271,50 @@ public class DrillServiceTests
         Assert.Equal(0, outcome!.Unlocked);
         Assert.Equal(10, await db.UserWordStates.CountAsync());
     }
+
+    // ── Learn mode (BEH-LEARN-1, kit#288) ───────────────────────────────────
+
+    [Fact]
+    public async Task Learn_bootstraps_and_shows_five_words_whole_by_rank()
+    {
+        using var db = NewDb();
+        SeedVocab(db, 20);
+
+        var round = await NewService(db).LearnAsync(User, 5);
+
+        Assert.Equal(5, round.Count);
+        // Nothing hidden: Learn mode teaches before it asks.
+        Assert.Equal("你好", round[0].Hanzi);
+        Assert.Equal("nǐ hǎo", round[0].Pinyin);
+        Assert.Equal(["hello", "hi"], round[0].Glosses);
+        Assert.Equal(["你好", "字2", "字3", "字4", "字5"], round.Select(c => c.Hanzi));
+    }
+
+    [Fact]
+    public async Task Learn_puts_words_already_answered_after_unseen_ones()
+    {
+        using var db = NewDb();
+        var (svc, niHao) = await Ready(db);
+        await svc.AnswerAsync(User, niHao.Id, DrillDirection.ZhToEn, "hello");
+
+        var round = await svc.LearnAsync(User, 5);
+
+        Assert.DoesNotContain(round, c => c.VocabItemId == niHao.Id);
+        Assert.Equal(["字2", "字3", "字4", "字5", "字6"], round.Select(c => c.Hanzi));
+    }
+
+    [Fact]
+    public async Task Learn_never_reaches_outside_the_pool_and_writes_nothing()
+    {
+        using var db = NewDb();
+        SeedVocab(db, 20);
+        var svc = NewService(db);
+
+        var round = await svc.LearnAsync(User, 20);
+
+        // The pool bootstraps to ten; the other ten words stay locked.
+        Assert.Equal(10, round.Count);
+        Assert.Equal(0, await db.AnswerLogs.CountAsync());
+        Assert.All(await db.UserWordStates.ToListAsync(), s => Assert.Equal(0, s.TimesSeen));
+    }
 }
