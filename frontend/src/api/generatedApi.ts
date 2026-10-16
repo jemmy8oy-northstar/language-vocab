@@ -17,8 +17,12 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/drill/learn`,
         params: {
           count: queryArg.count,
+          pack: queryArg.pack,
         },
       }),
+    }),
+    getPacks: build.query<GetPacksApiResponse, GetPacksApiArg>({
+      query: () => ({ url: `/api/packs` }),
     }),
     answerCard: build.mutation<AnswerCardApiResponse, AnswerCardApiArg>({
       query: (queryArg) => ({
@@ -40,7 +44,10 @@ export type GetNextCardApiArg = {
 export type GetLearnRoundApiResponse = /** status 200 OK */ ILearnCard[];
 export type GetLearnRoundApiArg = {
   count?: number;
+  pack?: string;
 };
+export type GetPacksApiResponse = /** status 200 OK */ IPack[];
+export type GetPacksApiArg = void;
 export type AnswerCardApiResponse = /** status 200 OK */ IDrillOutcome;
 export type AnswerCardApiArg = {
   answerRequest: AnswerRequest;
@@ -58,6 +65,11 @@ export type ILearnCard = {
   hanzi?: string;
   pinyin?: string;
   glosses?: string[];
+};
+export type IPack = {
+  id?: string;
+  title?: string;
+  hanzi?: string[];
 };
 export type AnswerVerdict = "Wrong" | "Almost" | "Correct";
 export type IDrillOutcome = {
@@ -77,5 +89,6 @@ export const {
   useGetStatusQuery,
   useGetNextCardQuery,
   useGetLearnRoundQuery,
+  useGetPacksQuery,
   useAnswerCardMutation,
 } = injectedRtkApi;

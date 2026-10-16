@@ -3,6 +3,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import Practice from './pages/Practice'
 import Learn from './pages/Learn'
+import Packs from './pages/Packs'
 import ScrollToTop from './components/ScrollToTop'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -17,6 +18,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Practice />} />
               <Route path="/learn" element={<Learn />} />
+              <Route path="/packs" element={<Packs />} />
             </Routes>
           </main>
           <footer className="container" style={{

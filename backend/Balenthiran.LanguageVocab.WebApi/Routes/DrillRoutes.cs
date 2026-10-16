@@ -35,14 +35,21 @@ public static class DrillRoutes
 
         // Learn mode (BEH-LEARN-1): a round of words to study, everything shown. Five unless asked,
         // and never more than a round's worth, so a stray query cannot dump the whole pool.
-        group.MapGet("/learn", async Task<Results<Ok<IReadOnlyList<ILearnCard>>, BadRequest>> (
-            int? count, IDrillService drill, CancellationToken ct) =>
+        // `pack` (BEH-PACK-1) narrows the round to one pack's words; an unknown pack is a 404, not
+        // a silent fall-back to the whole pool, which would teach the wrong words without saying so.
+        group.MapGet("/learn", async Task<Results<Ok<IReadOnlyList<ILearnCard>>, BadRequest, NotFound>> (
+            int? count, string? pack, IDrillService drill, IPackCatalog packs, CancellationToken ct) =>
         {
             var n = count ?? LearnRound;
             if (n is < 1 or > MaxLearnRound)
                 return TypedResults.BadRequest();
 
-            return TypedResults.Ok(await drill.LearnAsync(Owner, n, ct));
+            if (pack is null)
+                return TypedResults.Ok(await drill.LearnAsync(Owner, n, ct));
+
+            return packs.Find(pack) is { } found
+                ? TypedResults.Ok(await drill.LearnPackAsync(Owner, found, n, ct))
+                : TypedResults.NotFound();
         })
         .WithName("GetLearnRound");
 

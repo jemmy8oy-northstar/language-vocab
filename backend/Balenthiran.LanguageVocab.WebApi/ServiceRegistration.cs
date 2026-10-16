@@ -3,9 +3,11 @@ using Balenthiran.LanguageVocab.Abstractions.Services;
 using Balenthiran.LanguageVocab.Services;
 using Balenthiran.LanguageVocab.Services.Drilling;
 using Balenthiran.LanguageVocab.Services.Grading;
+using Balenthiran.LanguageVocab.Services.Packs;
 using Balenthiran.LanguageVocab.Services.Pooling;
 using Balenthiran.LanguageVocab.Services.Seeding;
 using Balenthiran.LanguageVocab.Database;
+using Balenthiran.LanguageVocab.Database.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace Balenthiran.LanguageVocab.WebApi;
@@ -35,5 +37,6 @@ public static class ServiceRegistration
         services.AddScoped<IPoolService, PoolService>();
         services.AddScoped<ISeedLoader, SeedLoader>();
         services.AddScoped<IDrillService, DrillService>();
+        services.AddSingleton<IPackCatalog>(new PackCatalog(SeedResources.PackJsons()));
     }
 }

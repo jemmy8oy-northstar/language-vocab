@@ -22,4 +22,24 @@ public static class SeedResources
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
+
+    /// <summary>
+    /// Every vocab pack (BEH-PACK-1) embedded from <c>Seed/packs/*.json</c>, by name order. A pack
+    /// is a seed file plus <c>pack</c>, <c>title</c> and <c>includes</c>: its <c>entries</c> are new
+    /// words seeded like any list, and <c>includes</c> names words another list already seeds.
+    /// </summary>
+    public static IReadOnlyList<string> PackJsons()
+    {
+        var assembly = typeof(SeedResources).Assembly;
+        return assembly.GetManifestResourceNames()
+            .Where(n => n.StartsWith("pack.", StringComparison.Ordinal) && n.EndsWith(".json", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .Select(n =>
+            {
+                using var stream = assembly.GetManifestResourceStream(n)!;
+                using var reader = new StreamReader(stream);
+                return reader.ReadToEnd();
+            })
+            .ToList();
+    }
 }

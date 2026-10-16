@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAnswerCardMutation, useGetLearnRoundQuery, type AnswerVerdict } from '../api/generatedApi';
 import { speak } from '../speech';
 import { verdictStyle } from '../verdict';
@@ -12,7 +12,9 @@ import config from '../data/config.json';
  * only about that round. Answers go through the same grader as Practice, so they count.
  */
 const Learn = () => {
-  const { data: round, isFetching, isError, refetch } = useGetLearnRoundQuery({}, { refetchOnMountOrArgChange: true });
+  // `?pack=mahjong` (BEH-PACK-1) teaches only that pack's words; without it, the whole pool.
+  const pack = useSearchParams()[0].get('pack') ?? undefined;
+  const { data: round, isFetching, isError, refetch } = useGetLearnRoundQuery({ pack }, { refetchOnMountOrArgChange: true });
   const [answerCard, { data: outcome, isLoading: isSubmitting, reset }] = useAnswerCardMutation();
   const [phase, setPhase] = useState<'show' | 'quiz' | 'done'>('show');
   const [index, setIndex] = useState(0);
@@ -61,7 +63,12 @@ const Learn = () => {
   return (
     <section className="container" style={{ paddingTop: '140px' }}>
       <div className="glass" style={{ padding: '40px 32px', maxWidth: '520px', margin: '0 auto', textAlign: 'center' }}>
-        {isError && <p style={{ color: '#f87171' }}>Could not reach the API.</p>}
+        {pack && (
+          <p data-testid="learn-pack" style={{ color: 'var(--accent-primary)', fontWeight: 700, marginBottom: '8px' }}>
+            Pack: {pack}
+          </p>
+        )}
+        {isError && <p style={{ color: '#f87171' }}>{pack ? 'Could not load this pack.' : 'Could not reach the API.'}</p>}
         {!isError && (isFetching || !round) && <p style={{ color: 'var(--text-secondary)' }}>Loading…</p>}
         {!isError && !isFetching && round && words.length === 0 && (
           <p style={{ color: 'var(--text-secondary)' }}>No words to learn yet.</p>

@@ -1,6 +1,7 @@
 {
     "navigation": {
         "home": "/",
-        "learn": "/learn"
+        "learn": "/learn",
+        "packs": "/packs"
     }
 }
