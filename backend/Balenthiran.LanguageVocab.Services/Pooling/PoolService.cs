@@ -73,6 +73,17 @@ public class PoolService(AppDbContext db, IPoolMath math) : IPoolService
         return await AddToPoolAsync(userId, nextByRank, ct);
     }
 
+    public async Task<IReadOnlyList<Guid>> EnsureInPoolAsync(
+        string userId, IReadOnlyCollection<Guid> vocabItemIds, CancellationToken ct = default)
+    {
+        var already = await Pool(userId)
+            .Where(s => vocabItemIds.Contains(s.VocabItemId))
+            .Select(s => s.VocabItemId)
+            .ToListAsync(ct);
+
+        return await AddToPoolAsync(userId, vocabItemIds.Except(already).ToList(), ct);
+    }
+
     private async Task<IReadOnlyList<Guid>> AddToPoolAsync(
         string userId, IReadOnlyList<Guid> vocabItemIds, CancellationToken ct)
     {

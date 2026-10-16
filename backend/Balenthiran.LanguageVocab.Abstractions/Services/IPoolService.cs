@@ -31,4 +31,12 @@ public interface IPoolService
     /// ids newly unlocked (empty if the threshold is unmet or nothing is left to add).
     /// </summary>
     Task<IReadOnlyList<Guid>> TryUnlockAsync(string userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Adds whichever of <paramref name="vocabItemIds"/> are not yet in the user's pool, at zero
+    /// strength — how a pack (BEH-PACK-1) brings its words in ahead of the rank order. Returns
+    /// the ids newly added. Idempotent.
+    /// </summary>
+    Task<IReadOnlyList<Guid>> EnsureInPoolAsync(
+        string userId, IReadOnlyCollection<Guid> vocabItemIds, CancellationToken ct = default);
 }

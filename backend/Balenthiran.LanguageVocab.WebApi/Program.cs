@@ -34,6 +34,14 @@ using (var scope = app.Services.CreateScope())
         var seeded = await scope.ServiceProvider.GetRequiredService<ISeedLoader>().LoadAsync(SeedResources.Hsk1Json());
         app.Logger.LogInformation("HSK1 seed: {Inserted} inserted, {Updated} updated, {Unchanged} unchanged",
             seeded.Inserted, seeded.Updated, seeded.Unchanged);
+
+        // A pack's own words (BEH-PACK-1) are seeded like any list; its `includes` already were.
+        foreach (var pack in SeedResources.PackJsons())
+        {
+            var packSeeded = await scope.ServiceProvider.GetRequiredService<ISeedLoader>().LoadAsync(pack);
+            app.Logger.LogInformation("Pack seed: {Inserted} inserted, {Updated} updated, {Unchanged} unchanged",
+                packSeeded.Inserted, packSeeded.Updated, packSeeded.Unchanged);
+        }
     }
 }
 
@@ -48,6 +56,7 @@ app.UseHttpsRedirection();
 app.MapGroup("/api")
     .MapStatusRoutes()
     .MapDrillRoutes()
+    .MapPackRoutes()
     .WithOpenApi();
 
 app.Run();
