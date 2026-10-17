@@ -2,6 +2,7 @@
     "navigation": {
         "home": "/",
         "learn": "/learn",
-        "packs": "/packs"
+        "packs": "/packs",
+        "stats": "/stats"
     }
 }
