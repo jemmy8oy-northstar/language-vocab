@@ -23,16 +23,6 @@ function App() {
               <Route path="/stats" element={<Stats />} />
             </Routes>
           </main>
-          <footer className="container" style={{
-            padding: '64px 0',
-            borderTop: '1px solid var(--glass-border)',
-            marginTop: '120px',
-            textAlign: 'center',
-            color: 'var(--text-secondary)',
-            fontSize: '0.9rem'
-          }}>
-            <p>© {new Date().getFullYear()} Your Name Here.</p>
-          </footer>
         </div>
       </Router>
     </ThemeProvider>
