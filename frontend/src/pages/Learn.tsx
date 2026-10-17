@@ -143,7 +143,7 @@ const Learn = () => {
               value={answer}
               readOnly={!!outcome}
               onChange={(e) => setAnswer(e.target.value)}
-              placeholder={reverse ? 'Type the pinyin — ni3 hao3, ni hao or nǐ hǎo' : 'Type the English meaning'}
+              placeholder={reverse ? 'Type the pinyin, e.g. ni3 hao3' : 'Type the English meaning'}
               style={{
                 width: '100%',
                 padding: '12px 16px',
