@@ -75,6 +75,10 @@ const Navbar: React.FC = () => {
           Packs
           {isActive(config.navigation.packs) && <ActiveDot />}
         </Link>
+        <Link to={config.navigation.stats} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.stats)}>
+          Stats
+          {isActive(config.navigation.stats) && <ActiveDot />}
+        </Link>
         <ThemeToggle />
       </div>
     </nav>
