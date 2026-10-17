@@ -57,6 +57,7 @@ app.MapGroup("/api")
     .MapStatusRoutes()
     .MapDrillRoutes()
     .MapPackRoutes()
+    .MapStatsRoutes()
     .WithOpenApi();
 
 app.Run();

@@ -6,6 +6,7 @@ using Balenthiran.LanguageVocab.Services.Grading;
 using Balenthiran.LanguageVocab.Services.Packs;
 using Balenthiran.LanguageVocab.Services.Pooling;
 using Balenthiran.LanguageVocab.Services.Seeding;
+using Balenthiran.LanguageVocab.Services.Stats;
 using Balenthiran.LanguageVocab.Database;
 using Balenthiran.LanguageVocab.Database.Seed;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +38,7 @@ public static class ServiceRegistration
         services.AddScoped<IPoolService, PoolService>();
         services.AddScoped<ISeedLoader, SeedLoader>();
         services.AddScoped<IDrillService, DrillService>();
+        services.AddScoped<IStatsService, StatsService>();
         services.AddSingleton<IPackCatalog>(new PackCatalog(SeedResources.PackJsons()));
     }
 }
