@@ -11,6 +11,8 @@ import config from '../data/config.json';
  * you on them". Practice draws from the whole pool; this teaches a round first and then asks
  * only about that round. Answers go through the same grader as Practice, so they count.
  */
+const REVERSE_KEY = 'learn-reverse';
+
 const Learn = () => {
   // `?pack=mahjong` (BEH-PACK-1) teaches only that pack's words; without it, the whole pool.
   const pack = useSearchParams()[0].get('pack') ?? undefined;
@@ -20,6 +22,13 @@ const Learn = () => {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [results, setResults] = useState<AnswerVerdict[]>([]);
+
+  // BEH-LEARN-3: English → pinyin is the harder, separate option; off unless he turns it on, and remembered on this device.
+  const [reverse, setReverse] = useState(() => localStorage.getItem(REVERSE_KEY) === '1');
+  const toggleReverse = () => {
+    localStorage.setItem(REVERSE_KEY, reverse ? '0' : '1');
+    setReverse(!reverse);
+  };
 
   const words = round ?? [];
   const word = words[index];
@@ -54,9 +63,11 @@ const Learn = () => {
       return;
     }
     if (!word?.vocabItemId || isSubmitting) return;
-    await answerCard({ answerRequest: { vocabItemId: word.vocabItemId, direction: 'ZhToEn', answer } });
+    await answerCard({ answerRequest: { vocabItemId: word.vocabItemId, direction: reverse ? 'EnToZh' : 'ZhToEn', answer } });
   };
 
+  // The word is never shown before a reverse answer: the hanzi would give the pinyin away. The verdict reveals it.
+  const hideWord = phase === 'quiz' && reverse && !outcome;
   const feedback = outcome?.verdict ? verdictStyle[outcome.verdict] : null;
   const correct = results.filter((r) => r === 'Correct').length;
 
@@ -74,21 +85,38 @@ const Learn = () => {
           <p style={{ color: 'var(--text-secondary)' }}>No words to learn yet.</p>
         )}
 
+        {phase !== 'done' && (
+          <button type="button" data-testid="reverse-toggle" aria-pressed={reverse} onClick={toggleReverse}
+            style={{ marginBottom: '16px', padding: '6px 14px', borderRadius: '999px', fontSize: '0.85rem', border: '1px solid var(--glass-border)',
+              background: reverse ? 'var(--accent-primary)' : 'transparent', color: reverse ? '#fff' : 'var(--text-secondary)' }}>
+            English → pinyin (harder): {reverse ? 'on' : 'off'}
+          </button>
+        )}
+
         {!isFetching && word && phase !== 'done' && (
           <>
             <p data-testid="learn-step" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
               {phase === 'show' ? 'Learn' : 'Quiz'} · {index + 1} of {words.length}
             </p>
-            <p data-testid="hanzi" lang="zh-CN" style={{ fontSize: '4rem', lineHeight: 1.1 }}>
-              {word.hanzi}
-            </p>
-            <p data-testid="pinyin" style={{ fontSize: '1.4rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              {word.pinyin}
-            </p>
-            <button type="button" onClick={() => speak(word.hanzi ?? '')} aria-label="Play audio"
-              style={{ fontSize: '1.4rem', marginBottom: '16px' }}>
-              🔊
-            </button>
+            {hideWord && (
+              <p data-testid="english-prompt" style={{ fontSize: '1.6rem', marginBottom: '16px' }}>
+                {word.glosses?.join(' · ')}
+              </p>
+            )}
+            {!hideWord && (
+              <>
+                <p data-testid="hanzi" lang="zh-CN" style={{ fontSize: '4rem', lineHeight: 1.1 }}>
+                  {word.hanzi}
+                </p>
+                <p data-testid="pinyin" style={{ fontSize: '1.4rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  {word.pinyin}
+                </p>
+                <button type="button" onClick={() => speak(word.hanzi ?? '')} aria-label="Play audio"
+                  style={{ fontSize: '1.4rem', marginBottom: '16px' }}>
+                  🔊
+                </button>
+              </>
+            )}
           </>
         )}
 
@@ -115,7 +143,7 @@ const Learn = () => {
               value={answer}
               readOnly={!!outcome}
               onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type the English meaning"
+              placeholder={reverse ? 'Type the pinyin, e.g. ni3 hao3' : 'Type the English meaning'}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -130,7 +158,8 @@ const Learn = () => {
             {outcome && feedback && (
               <div data-testid="verdict" style={{ marginTop: '20px' }}>
                 <p style={{ color: feedback.colour, fontWeight: 700, fontSize: '1.2rem' }}>{feedback.label}</p>
-                {outcome.verdict !== 'Correct' && (
+                {/* En→Zh needs no correction line: the word above now shows the right pinyin. */}
+                {!reverse && outcome.verdict !== 'Correct' && (
                   <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>{outcome.glosses?.join(' · ')}</p>
                 )}
               </div>
