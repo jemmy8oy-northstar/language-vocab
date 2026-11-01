@@ -14,6 +14,9 @@ const round = [
 
 const outcome = { verdict: 'Correct', hanzi: '你', pinyin: 'nǐ', glosses: ['you'], strength: 1, unlocked: 0 };
 
+const idOfPinyin = (pinyin: string | null) => round.find((w) => w.pinyin === pinyin)!.vocabItemId;
+const idOfGloss = (gloss: string | null) => round.find((w) => w.glosses.join(' · ') === gloss)!.vocabItemId;
+
 const routes = () => ({ 'GET /api/drill/learn': round, 'POST /api/drill/answer': outcome });
 
 /** Click through the show phase ("Next" x4, then "Start the quiz"). */
@@ -32,22 +35,42 @@ describe('Learn quiz after the five words (BEH-LEARN-2)', () => {
 
     // Prompt is the pinyin; the learner types English.
     expect(screen.getByTestId('learn-step')).toHaveTextContent('Quiz · 1 of 5');
-    expect(screen.getByTestId('pinyin')).toHaveTextContent('nǐ');
     expect(screen.getByRole('textbox', { name: 'Answer' })).toHaveAttribute('placeholder', 'Type the English meaning');
 
+    const prompted: string[] = [];
     for (let i = 0; i < 5; i++) {
+      prompted.push(idOfPinyin(screen.getByTestId('pinyin').textContent));
       await user.type(screen.getByRole('textbox', { name: 'Answer' }), 'x{Enter}');
       await within(await screen.findByTestId('verdict')).findByText('Correct');
       await user.keyboard('{Enter}');
     }
     expect(await screen.findByTestId('learn-done')).toHaveTextContent('5 of 5 right');
 
+    // Each answer is graded against the word on screen, and each of the five is asked once.
     const answers = calls.filter((c) => c.path.endsWith('/api/drill/answer'));
-    expect(answers.map((c) => (c.body as { vocabItemId: string }).vocabItemId)).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(answers.map((c) => (c.body as { vocabItemId: string }).vocabItemId)).toEqual(prompted);
+    expect([...prompted].sort()).toEqual(['a', 'b', 'c', 'd', 'e']);
     expect(answers.every((c) => (c.body as { direction: string }).direction === 'ZhToEn')).toBe(true);
     // Nothing outside the round was fetched: one round, no drill/next.
     expect(calls.filter((c) => c.path.endsWith('/api/drill/learn'))).toHaveLength(1);
     expect(calls.some((c) => c.path.endsWith('/api/drill/next'))).toBe(false);
+  });
+
+  it('asks the five in a different order from the one they were shown in (2026-11-01 Kit note)', async () => {
+    stubApi(routes());
+    const user = userEvent.setup();
+    renderPage(<Learn />);
+    await showAllFive(user);
+
+    const prompted: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      prompted.push(idOfPinyin(screen.getByTestId('pinyin').textContent));
+      await user.type(screen.getByRole('textbox', { name: 'Answer' }), 'x{Enter}');
+      await screen.findByTestId('verdict');
+      await user.keyboard('{Enter}');
+    }
+    expect([...prompted].sort()).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(prompted).not.toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 
   it('asks nothing until all five words have been shown', async () => {
@@ -83,7 +106,7 @@ describe('Learn reverse quiz, English to pinyin (BEH-LEARN-3)', () => {
     await user.click(screen.getByRole('button', { name: 'Start the quiz' }));
 
     // English prompt; the hanzi and pinyin would give the answer away, so they are not on screen.
-    expect(screen.getByTestId('english-prompt')).toHaveTextContent('you');
+    const asked = idOfGloss(screen.getByTestId('english-prompt').textContent);
     expect(screen.queryByTestId('hanzi')).not.toBeInTheDocument();
     expect(screen.queryByTestId('pinyin')).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Answer' })).toHaveAttribute('placeholder', expect.stringMatching(/pinyin/i));
@@ -92,8 +115,8 @@ describe('Learn reverse quiz, English to pinyin (BEH-LEARN-3)', () => {
     await screen.findByTestId('verdict');
 
     const answer = calls.find((c) => c.path.endsWith('/api/drill/answer'));
-    expect(answer?.body).toEqual({ vocabItemId: 'a', direction: 'EnToZh', answer: 'ni3' });
+    expect(answer?.body).toEqual({ vocabItemId: asked, direction: 'EnToZh', answer: 'ni3' });
     // The verdict reveals the word.
-    expect(screen.getByTestId('hanzi')).toHaveTextContent('你');
+    expect(screen.getByTestId('hanzi')).toHaveTextContent(round.find((w) => w.vocabItemId === asked)!.hanzi);
   });
 });

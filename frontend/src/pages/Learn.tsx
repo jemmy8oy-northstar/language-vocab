@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useAnswerCardMutation, useGetLearnRoundQuery, type AnswerVerdict } from '../api/generatedApi';
 import { speak } from '../speech';
 import { verdictStyle } from '../verdict';
+import { shuffle } from '../shuffle';
 import config from '../data/config.json';
 
 /**
@@ -22,6 +23,8 @@ const Learn = () => {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [results, setResults] = useState<AnswerVerdict[]>([]);
+  // His 2026-11-01 Kit note: the quiz asks the round in a new order, not the order it was shown in.
+  const [quizWords, setQuizWords] = useState<NonNullable<typeof round>>([]);
 
   // BEH-LEARN-3: English → pinyin is the harder, separate option; off unless he turns it on, and remembered on this device.
   const [reverse, setReverse] = useState(() => localStorage.getItem(REVERSE_KEY) === '1');
@@ -30,7 +33,7 @@ const Learn = () => {
     setReverse(!reverse);
   };
 
-  const words = round ?? [];
+  const words = phase === 'quiz' ? quizWords : round ?? [];
   const word = words[index];
 
   const restart = () => {
@@ -47,6 +50,7 @@ const Learn = () => {
       setIndex(index + 1);
       return;
     }
+    setQuizWords(shuffle(words));
     setIndex(0);
     setPhase('quiz');
   };
