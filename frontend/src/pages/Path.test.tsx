@@ -18,7 +18,7 @@ const sectionLinks = () => within(screen.getByRole('region', { name: 'Path secti
 describe('Learning path (BEH-PATH-1)', () => {
   beforeEach(() => localStorage.clear());
 
-  it('BEH-PATH-1: lists the path\'s sections in order, all open, skipping packs off the path', async () => {
+  it("BEH-PATH-1: lists the path's sections in order, all open, skipping packs off the path", async () => {
     stubApi({ 'GET /api/packs': packs });
     renderPage(<Path />, '/path');
 
