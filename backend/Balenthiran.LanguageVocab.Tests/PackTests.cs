@@ -143,4 +143,31 @@ public class PackTests
 
         Assert.Throws<InvalidOperationException>(() => new PackCatalog([json, json]));
     }
+
+    [Fact]
+    public void The_shipped_path_runs_greetings_then_numbers_then_mahjong()
+    {
+        // BEH-PATH-1: the path is the order of the `path` numbers, not the order of the files.
+        var onPath = new PackCatalog(SeedResources.PackJsons()).All
+            .Where(p => p.Path is not null).OrderBy(p => p.Path).Select(p => p.Id);
+
+        Assert.Equal(["greetings", "numbers", "mahjong"], onPath);
+    }
+
+    [Fact]
+    public void Two_packs_at_the_same_path_number_are_refused()
+    {
+        const string first = """{ "pack": "a", "title": "A", "includes": ["一"], "path": 1 }""";
+        const string second = """{ "pack": "b", "title": "B", "includes": ["二"], "path": 1 }""";
+
+        Assert.Throws<InvalidOperationException>(() => new PackCatalog([first, second]));
+    }
+
+    [Fact]
+    public void A_pack_without_a_path_is_off_the_path()
+    {
+        const string json = """{ "pack": "p", "title": "P", "includes": ["一"] }""";
+
+        Assert.Null(new PackCatalog([json]).Find("p")!.Path);
+    }
 }

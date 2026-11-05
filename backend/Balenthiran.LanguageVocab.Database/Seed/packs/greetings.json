@@ -1,0 +1,13 @@
+{
+  "language": "zh",
+  "list": "pack:greetings",
+  "version": 1,
+  "pack": "greetings",
+  "title": "Greetings",
+  "path": 1,
+  "includes": ["谢谢", "再见"],
+  "entries": [
+    { "hanzi": "你好", "pinyin": "nǐ hǎo", "glosses": ["hello"], "level": 0, "frequencyRank": 2001 },
+    { "hanzi": "您好", "pinyin": "nín hǎo", "glosses": ["hello (polite)"], "level": 0, "frequencyRank": 2002 }
+  ]
+}

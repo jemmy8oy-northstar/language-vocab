@@ -2,6 +2,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderPage, stubApi } from '../test/harness';
+import { credited, isPassed } from '../pathProgress';
 import Learn from './Learn';
 
 const round = [
@@ -118,5 +119,34 @@ describe('Learn reverse quiz, English to pinyin (BEH-LEARN-3)', () => {
     expect(answer?.body).toEqual({ vocabItemId: asked, direction: 'EnToZh', answer: 'ni3' });
     // The verdict reveals the word.
     expect(screen.getByTestId('hanzi')).toHaveTextContent(round.find((w) => w.vocabItemId === asked)!.hanzi);
+  });
+});
+
+describe('Learn pack quiz on the path (BEH-PATH-1)', () => {
+  /** Show the five, then answer the quiz with whatever `verdict` the API returns. */
+  const runPackQuiz = async (verdict: string) => {
+    stubApi({ ...routes(), 'POST /api/drill/answer': { ...outcome, verdict } });
+    const user = userEvent.setup();
+    const view = renderPage(<Learn />, '/learn?pack=greetings');
+    await showAllFive(user);
+    for (let i = 0; i < 5; i++) {
+      await user.type(screen.getByRole('textbox', { name: 'Answer' }), 'x{Enter}');
+      await screen.findByTestId('verdict');
+      await user.keyboard('{Enter}');
+    }
+    expect(await screen.findByTestId('learn-done')).toBeInTheDocument();
+    view.unmount();
+  };
+
+  it('BEH-PATH-1: a pack quiz answered all right credits its words to the section, a miss does not', async () => {
+    localStorage.clear();
+    await runPackQuiz('Wrong');
+    expect(credited('greetings')).toEqual([]);
+
+    await runPackQuiz('Correct');
+    expect([...credited('greetings')].sort()).toEqual(round.map((w) => w.hanzi).sort());
+    // Five words credited is not a pass for a section with a sixth.
+    expect(isPassed({ id: 'greetings', hanzi: [...round.map((w) => w.hanzi), '谢谢'] })).toBe(false);
+    expect(isPassed({ id: 'greetings', hanzi: round.map((w) => w.hanzi) })).toBe(true);
   });
 });
