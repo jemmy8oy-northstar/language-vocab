@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Practice from './pages/Practice'
 import Learn from './pages/Learn'
 import Packs from './pages/Packs'
+import Path from './pages/Path'
 import Stats from './pages/Stats'
 import ScrollToTop from './components/ScrollToTop'
 import { ThemeProvider } from './context/ThemeContext'
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<Practice />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="/packs" element={<Packs />} />
+              <Route path="/path" element={<Path />} />
               <Route path="/stats" element={<Stats />} />
             </Routes>
           </main>

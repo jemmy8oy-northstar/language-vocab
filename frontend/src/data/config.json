@@ -3,6 +3,7 @@
         "home": "/",
         "learn": "/learn",
         "packs": "/packs",
+        "path": "/path",
         "stats": "/stats"
     }
 }

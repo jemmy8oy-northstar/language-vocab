@@ -21,6 +21,10 @@ public class PackCatalog : IPackCatalog
         var duplicate = All.GroupBy(p => p.Id).FirstOrDefault(g => g.Count() > 1);
         if (duplicate is not null)
             throw new InvalidOperationException($"Two pack files both declare pack '{duplicate.Key}'.");
+
+        var samePlace = All.Where(p => p.Path is not null).GroupBy(p => p.Path).FirstOrDefault(g => g.Count() > 1);
+        if (samePlace is not null)
+            throw new InvalidOperationException($"Two pack files both sit at path {samePlace.Key}.");
     }
 
     public IReadOnlyList<IPack> All { get; }
@@ -38,10 +42,10 @@ public class PackCatalog : IPackCatalog
         if (hanzi.Count == 0)
             throw new InvalidOperationException($"Pack '{file.Pack}' has no words.");
 
-        return new Pack(file.Pack, file.Title, hanzi);
+        return new Pack(file.Pack, file.Title, hanzi, file.Path);
     }
 
-    private sealed record PackFile(string Pack, string Title, List<string>? Includes, List<PackEntry>? Entries);
+    private sealed record PackFile(string Pack, string Title, int? Path, List<string>? Includes, List<PackEntry>? Entries);
 
     private sealed record PackEntry(string Hanzi);
 }

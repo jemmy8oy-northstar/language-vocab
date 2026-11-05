@@ -4,6 +4,7 @@ import { useAnswerCardMutation, useGetLearnRoundQuery, type AnswerVerdict } from
 import { speak } from '../speech';
 import { verdictStyle } from '../verdict';
 import { shuffle } from '../shuffle';
+import { creditRound } from '../pathProgress';
 import config from '../data/config.json';
 
 /**
@@ -62,8 +63,13 @@ const Learn = () => {
       setResults([...results, outcome.verdict]);
       reset();
       setAnswer('');
-      if (index + 1 < words.length) setIndex(index + 1);
-      else setPhase('done');
+      if (index + 1 < words.length) {
+        setIndex(index + 1);
+      } else {
+        // BEH-PATH-1: a round answered all right credits its words to the section; a miss credits nothing.
+        if (pack && [...results, outcome.verdict].every((r) => r === 'Correct')) creditRound(pack, words.map((w) => w.hanzi ?? ''));
+        setPhase('done');
+      }
       return;
     }
     if (!word?.vocabItemId || isSubmitting) return;

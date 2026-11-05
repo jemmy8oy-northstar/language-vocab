@@ -1,0 +1,10 @@
+{
+  "language": "zh",
+  "list": "pack:numbers",
+  "version": 1,
+  "pack": "numbers",
+  "title": "Numbers 1 to 10",
+  "path": 2,
+  "includes": ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"],
+  "entries": []
+}

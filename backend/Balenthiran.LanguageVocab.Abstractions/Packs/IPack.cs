@@ -13,4 +13,7 @@ public interface IPack
 
     /// <summary>Every word in the pack, in the order it teaches them.</summary>
     IReadOnlyList<string> Hanzi { get; }
+
+    /// <summary>Position on the learning path (1 = first), or null when the pack is off the path (BEH-PATH-1).</summary>
+    int? Path { get; }
 }
