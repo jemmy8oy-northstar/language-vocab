@@ -75,6 +75,7 @@ export type IPack = {
   id?: string;
   title?: string;
   hanzi?: string[];
+  path?: number | null;
 };
 export type IWordStrength = {
   hanzi?: string;

@@ -6,4 +6,5 @@ namespace Balenthiran.LanguageVocab.DataModels.Packs;
 public record Pack(
     string Id,
     string Title,
-    IReadOnlyList<string> Hanzi) : IPack;
+    IReadOnlyList<string> Hanzi,
+    int? Path = null) : IPack;
